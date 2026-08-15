@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#06111a" />
+  <title>TRACE//BURN — Cyberpunk Typing Game</title>
+  <link rel="stylesheet" href="css/game.css" />
+</head>
+<body>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="noise" aria-hidden="true"></div>
+
+  <main class="shell" id="app">
+    <header class="topbar panel">
+      <div class="brand">
+        <span class="brand-kicker">SECTOR 7</span>
+        <h1>TRACE//BURN DEMO</h1>
+      </div>
+      <div class="statusline">
+        <span><i class="dot online"></i> NETLINK: ONLINE</span>
+        <span id="clock">00:00</span>
+      </div>
+    </header>
+
+    <section class="hud-grid">
+      <aside class="panel telemetry" aria-label="Telemetry">
+        <h2>Telemetry</h2>
+        <dl>
+          <div><dt>Score</dt><dd id="score">0</dd></div>
+          <div><dt>Combo</dt><dd id="combo">x1</dd></div>
+          <div><dt>Accuracy</dt><dd id="accuracy">100%</dd></div>
+          <div><dt>WPM</dt><dd id="wpm">0</dd></div>
+          <div><dt>Threat</dt><dd id="threat">1</dd></div>
+          <div><dt>Phase</dt><dd id="phase">SCAN</dd></div>
+        </dl>
+
+        <div class="meter-wrap">
+          <div class="meter-label"><span>TRACE</span><span id="traceText">0%</span></div>
+          <div class="meter"><div class="meter-fill danger" id="traceBar"></div></div>
+        </div>
+
+        <div class="meter-wrap">
+          <div class="meter-label"><span>BREACH</span><span id="breachText">0%</span></div>
+          <div class="meter"><div class="meter-fill" id="breachBar"></div></div>
+        </div>
+      </aside>
+
+      <section class="panel arena-wrap">
+        <div class="arena-header">
+          <div>
+            <span class="eyebrow">ACTIVE NETWORK SPACE</span>
+            <strong id="objective">Awaiting operator...</strong>
+          </div>
+          <div class="round-timer" id="roundTimer">01:40</div>
+        </div>
+
+        <div class="layer-progress" id="layerProgress" aria-label="Network layer progression">
+          <div class="layer-progress-track" id="layerProgressTrack"></div>
+        </div>
+
+        <div id="arena" class="arena" tabindex="0" aria-label="Typing game area">
+          <div class="network-depth" aria-hidden="true">
+            <div class="depth-plane depth-plane-a"></div>
+            <div class="depth-plane depth-plane-b"></div>
+            <div class="depth-plane depth-plane-c"></div>
+            <div class="depth-core"></div>
+          </div>
+          <div class="grid-floor" aria-hidden="true"></div>
+          <div class="center-reticle" aria-hidden="true"><span></span><span></span></div>
+          <div id="layerTransition" class="layer-transition" aria-live="polite">
+            <span class="layer-transition-kicker">LAYER BREACHED</span>
+            <strong id="layerTransitionTitle">LINK</strong>
+            <small id="layerTransitionMeta">DESCENDING...</small>
+          </div>
+          <div id="comboIndicator" class="combo-indicator" aria-live="polite"></div>
+          <div id="targetLayer" class="target-layer"></div>
+
+          <section id="deepAccessLayer" class="deep-access" aria-live="polite" aria-hidden="true">
+            <div class="deep-access-head">
+              <div>
+                <span class="eyebrow">POST-BREACH EXTRACTION</span>
+                <strong id="deepModeTitle">DEEP ACCESS</strong>
+              </div>
+              <div class="deep-block-count"><span>BLOCKS</span><strong id="deepBlocks">0</strong></div>
+            </div>
+            <div id="deepInstruction" class="deep-instruction">Awaiting extraction mode...</div>
+
+            <div id="deepConsole" class="deep-console">
+              <div class="memory-head">
+                <span id="memoryBlockLabel">MEMORY BLOCK 01</span>
+                <small>LIVE BUFFER // TYPE SELECTED ROW</small>
+              </div>
+              <div id="memoryRows" class="memory-rows"></div>
+              <div class="deep-input-line"><span>&gt;</span><strong id="deepTyped"></strong><i id="deepCursor"></i></div>
+            </div>
+
+            <div id="deepMatrix" class="deep-matrix">
+              <div class="matrix-head">
+                <span id="matrixBlockLabel">RECALL MATRIX 01</span>
+                <small id="matrixStageLabel">MEMORIZE HIGHLIGHTED CELLS</small>
+              </div>
+              <div id="matrixGrid" class="matrix-grid"></div>
+              <div class="matrix-recall">
+                <span>BUFFER</span><strong id="matrixTyped"></strong><i></i>
+              </div>
+            </div>
+          </section>
+
+          <div id="deepTransition" class="deep-transition" aria-live="assertive">
+            <span id="deepTransitionKicker">BREACH COMPLETE</span>
+            <strong id="deepTransitionTitle">DEEP ACCESS UNLOCKED</strong>
+            <small id="deepTransitionMeta">EXTRACT DATA BEFORE TRACE CLOSES</small>
+          </div>
+
+          <div id="startOverlay" class="overlay active">
+              <div class="overlay-card">
+                  <p class="eyebrow">CONTRACT AVAILABLE</p>
+                  <h2>Break the firewall before the trace completes.</h2>
+                  <p>Type each word or phrase before its timer runs out.</p>  <p>Mistakes increase trace; clean chains accelerate breach progress. </p>
+                  <p>High scores are tracked locally in the browser.</p>
+                  <div class="controls-note">
+                      <span><kbd>TYPE</kbd> attack</span>
+                      <span><kbd>ESC</kbd> pause</span>
+                      <span><kbd>R</kbd> restart after game over</span>
+                  </div>
+                  <button id="startBtn" class="primary-btn mode-btn" type="button" data-mode="breach">INITIATE BREACH</button>
+                  <button id="startFreeBtn" class="primary-btn mode-btn" type="button" data-mode="free">ENDURANCE</button>
+              </div>
+
+
+          </div>
+
+          <div id="pauseOverlay" class="overlay">
+            <div class="overlay-card compact">
+              <p class="eyebrow">SESSION SUSPENDED</p>
+              <h2>PAUSED</h2>
+              <button id="resumeBtn" class="primary-btn">RESUME</button>
+            </div>
+          </div>
+
+          <div id="gameOverOverlay" class="overlay">
+              <div class="overlay-card">
+                  <p class="eyebrow" id="gameOverKicker">CONNECTION LOST</p>
+                  <h2 id="gameOverTitle">Trace completed.</h2>
+                  <div class="rating-panel">
+                      <span class="rating-kicker">OPERATOR RATING</span>
+                      <strong id="rating" data-rating="c">C</strong>
+                      <small id="ratingLabel">OPERATOR RATED</small>
+                  </div>
+                  <div class="results-grid results-grid-expanded">
+                      <div><span>Score</span><strong id="finalScore">0</strong><small id="pbScore">PB 0</small></div>
+                      <div><span>Peak Combo</span><strong id="finalPeakCombo">x1</strong><small id="pbPeakCombo">PB x1</small></div>
+                      <div><span>Average WPM</span><strong id="finalWpm">0</strong><small id="pbWpm">PB 0 avg / 0 peak</small></div>
+                      <div><span>Peak WPM</span><strong id="finalPeakWpm">0</strong><small>stabilized after 6s</small></div>
+                      <div><span>Accuracy</span><strong id="finalAccuracy">0%</strong><small id="pbAccuracy">PB 0%</small></div>
+                      <div><span>Targets Breached</span><strong id="finalTargets">0</strong><small id="pbTargets">PB 0</small></div>
+                      <div><span>Elite Breached</span><strong id="finalEliteTargets">0</strong><small id="pbEliteTargets">PB 0</small></div>
+                      <div><span>Deepest Layer</span><strong id="finalDeepestLayer">SCAN</strong><small id="pbDeepestLayer">PB SCAN</small></div>
+                      <div><span>Trace Events</span><strong id="finalTraceEvents">0</strong><small id="pbTraceEvents">BEST 0</small></div>
+                      <div><span>Deep Blocks</span><strong id="finalDeepBlocks">0</strong><small id="pbDeepBlocks">PB 0</small></div>
+                      <div class="best-score-tile"><span>All-time Score</span><strong id="bestScore">0</strong><small>stored locally</small></div>
+                  </div>
+                  <button id="restartBtn" class="primary-btn">RECONNECT</button>
+                  <button id="changeModeBtn" class="primary-btn">CHANGE MODE</button>
+              </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel console-panel" aria-label="Console log">
+        <div class="console-head">
+          <h2>Console</h2>
+          <button id="soundBtn" class="icon-btn" type="button" aria-pressed="true" title="Toggle sound">SND</button>
+        </div>
+
+        <section id="operatorPanel" class="operator-panel operator-calm" aria-label="NYX operator uplink">
+          <div class="operator-frame">
+            <div class="operator-ambient" aria-hidden="true"></div>
+            <img id="operatorImage" class="operator-image" src="assets/operator/nyx.webp" alt="NYX, your remote intrusion handler" />
+            <div class="operator-glitch-copy" aria-hidden="true"></div>
+            <div class="operator-deep-grid" aria-hidden="true"></div>
+            <div class="operator-scanlines" aria-hidden="true"></div>
+            <div class="operator-scanbeam" aria-hidden="true"></div>
+            <div class="operator-corners" aria-hidden="true"></div>
+            <div class="operator-nameplate"><strong>NYX</strong><span>REMOTE HANDLER</span></div>
+            <div class="operator-status">
+              <span class="operator-status-dot"></span>
+              <strong id="operatorStatusText">LINK STABLE</strong>
+            </div>
+          </div>
+          <div class="operator-comms"><span>NYX //</span><div id="operatorMessage" class="operator-message">Link is clean. Start when ready.</div></div>
+        </section>
+
+        <div id="consoleLog" class="console-log" aria-live="polite"></div>
+      </aside>
+    </section>
+
+    <footer class="footerbar panel">
+        <span>DEMO GAME - <a href="https://ko-fi.com/KeeleyCreates"> Help support this project!</a></span>
+        <span> <a href="./privacy.html">Privacy Agreement </a></span>
+        <span>OPERATOR MODE: KEYBOARD</span>
+    </footer>
+  </main>
+
+  <script src="js/words.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
